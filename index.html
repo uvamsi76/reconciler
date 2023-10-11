@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Todo</title>
+</head>
+
+<body>
+
+    "Title"
+    <input type="text" id="title" name="title"><br><br>
+    "description"
+    <input type="text" id="description" name="description"><br><br>
+    <button onclick="onPress()">Send todo</button><br><br>
+    <button onclick="Onget()">Get todos</button><br><br>
+    <div id="main"></div>
+    <script>
+    const parent=document.getElementById("main");
+    function upd(id){
+        var child1=document.createElement("div");
+        var a1=document.createElement("input");
+        a1.setAttribute("type","text");
+        a1.setAttribute("id","utitle")
+        a1.setAttribute("name","update title");
+        var a2=document.createElement("input");
+        a2.setAttribute("type","text");
+        a2.setAttribute("id","udesc")
+        a2.setAttribute("name","update description");
+        var a3=document.createElement("button");
+        a3.innerText="update";
+        child1.appendChild(a1);
+        child1.appendChild(a2);
+        child1.appendChild(a3);
+        parent.appendChild(child1);
+        a3.addEventListener("click",()=>{Onupdate(id)})
+    }
+    function Onupdate(id){
+        var title=document.getElementById("utitle").value;
+        var description=document.getElementById("udesc").value;
+        fetch(`http://localhost:3000/todos/${id}`,{
+            method:"PUT",
+            body: JSON.stringify({
+                    title:title,
+                    description:description
+                }),
+            headers:{
+            "Content-Type":"application/json"
+        }
+    }).then(()=>{console.log("updated")});
+    }
+    function Ondelete(id){
+        fetch(`http://localhost:3000/todos/${Number(id)}`,{
+        method:"DELETE",
+        headers:{
+            "Content-Type":"application/json"
+        }
+        }).then((resp)=>{console.log("data")})
+    }
+    function Onget(){
+        parent.innerHTML="";
+    fetch("http://localhost:3000/todos",{
+        method:"GET",
+        headers:{
+            "Content-Type":"application/json"
+        }
+    }).then((resp)=>{
+        return resp.json()
+    }).then((data)=>{
+        console.log(data);
+        for(let i=0;i<data.length;i++){
+            var child=document.createElement("div");
+            var c1=document.createElement("span");
+            var c2=document.createElement("strong");
+            var c3=document.createElement("p");
+            var c4=document.createElement("button");
+            var c5=document.createElement("button");
+            var vid=data[i].id;
+            c1.innerText=data[i].id;
+            c1.setAttribute("id"+vid,"ID");
+            c2.innerHTML=data[i].title
+            c3.innerHTML=data[i].description
+            c4.innerText="delete";
+            c4.setAttribute("id","delete"+i);
+            c5.innerText="Update";
+            c5.setAttribute("id","update"+i);
+            child.appendChild(c1);
+            child.appendChild(c2);
+            child.appendChild(c3);
+            child.appendChild(c4);
+            child.appendChild(c5);
+            parent.appendChild(child);
+            
+            document.getElementById("delete"+i).addEventListener("click", function() {
+  Ondelete(vid);
+});
+
+document.getElementById("update"+i).addEventListener("click", function() {
+  upd(vid);
+});
+
+        }
+    })
+}
+        function onPress(){
+    //     fetch("http://localhost:3000/todos",{
+    //         method:"POST",
+    //         body:JSON.stringify({
+    //             title:"gym",
+    //             description:"some random gym"
+    //         }),
+    //         headers:{
+    //             "Content-Type":"application/json"
+    //         }
+    //     }).then((resp)=>{
+    //         return resp.json();            
+    //     }).then((data)=>{console.log(data)})
+    // }
+    const title=document.getElementById("title").value;
+    const description=document.getElementById("description").value;
+
+    
+    console.log(title);
+    console.log(description)
+    fetch("http://localhost:3000/todos", {
+                method: "POST",
+                body: JSON.stringify({
+                    title:title,
+                    description:description
+                }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                console.log(data);
+                parent.innerHTML=JSON.stringify(data);
+                // document.getElementById('json-data').innerText = JSON.stringify(data, null, 2);
+                // // Fetch and update the todos list again
+                // getTodos();
+            }).catch((err)=>
+            {
+                console.log(err);
+            });
+            }
+    </script>
+    </div>
+</body>
+
+</html>
